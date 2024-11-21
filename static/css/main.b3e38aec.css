@@ -1,0 +1,2 @@
+#root,body,canvas,html{height:100%;margin:0;overflow:hidden;width:100%}select{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);background-color:#ffffffb3;border:2px solid #ccc;border-radius:5px;box-shadow:0 4px 8px #0003;font-size:16px;left:20px;padding:10px;position:absolute;top:20px;transition:all .3s ease;z-index:10}select:focus{border-color:#007bff;outline:none}.select-container{left:20px;pointer-events:auto;position:fixed;top:20px;z-index:100}
+/*# sourceMappingURL=main.b3e38aec.css.map*/
