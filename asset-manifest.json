@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/zykovst/static/css/main.ff9ba0a8.css",
+    "main.js": "/zykovst/static/js/main.c4aeae5e.js",
+    "index.html": "/zykovst/index.html",
+    "main.ff9ba0a8.css.map": "/zykovst/static/css/main.ff9ba0a8.css.map",
+    "main.c4aeae5e.js.map": "/zykovst/static/js/main.c4aeae5e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ff9ba0a8.css",
+    "static/js/main.c4aeae5e.js"
+  ]
+}
