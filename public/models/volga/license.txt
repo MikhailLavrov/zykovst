@@ -1,0 +1,8 @@
+Model Information:
+* title:	1971 GAZ-24 Volga (LP)
+* source:	https://sketchfab.com/3d-models/1971-gaz-24-volga-lp-784ffea507354f70adf94d7fe0fd4b2a
+* author:	KrStolorz (Krzysztof Stolorz) (https://sketchfab.com/KrStolorz)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

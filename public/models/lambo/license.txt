@@ -1,0 +1,8 @@
+Model Information:
+* title:	Lamborghini Huracan LP 610-4 (Race)
+* source:	https://sketchfab.com/3d-models/lamborghini-huracan-lp-610-4-race-9067bd51154e4c86a5a971e4301595ae
+* author:	Wekfest™ (https://sketchfab.com/Wekfest23)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
