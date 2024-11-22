@@ -36,7 +36,7 @@ export const StepanAnimation = () => {
 
   // Abstraction settings
   const abstractionOptions = useControls("Abstraction Settings", {
-    roughness: { value: 0.5, min: 0, max: 1 },
+    roughness: { value: 0.3, min: 0, max: 1 },
   });
 
   useEffect(() => {
