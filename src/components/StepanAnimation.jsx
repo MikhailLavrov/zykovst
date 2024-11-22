@@ -1,22 +1,19 @@
 import { useFrame } from "@react-three/fiber";
-import { AccumulativeShadows, ContactShadows, Environment, OrbitControls, RandomizedLight, useAnimations, useGLTF, useTexture } from "@react-three/drei";
+import { ContactShadows, Environment, useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { useControls, useStoreContext } from "leva";
+import { useControls } from "leva";
 
 export const StepanAnimation = () => {
-  const group = useRef();
   const sphereGLTF = useGLTF(process.env.PUBLIC_URL + "/models/mat_001/mat_001.gltf");
-  const animaGLTF = useGLTF(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
-  const ballRef = useRef();
-  const animaRef = useRef();
-  const texture = useTexture('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1mtrFjnGJ4c5LmbhmMlZi5frAHzbT0kj_HQ&s');
-
-  const store = useStoreContext();
-
-  const { actions } = useAnimations(animaGLTF.animations, group);
+  const abstractionGLTF = useGLTF(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
+  const sphereRef = useRef();
+  const abstractionRef = useRef();
+  const texture2 = useTexture('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW-glEOwG5L2ms7K9YhYIC5OeTOXYfsypPsW2lef3DNuenf3JJiqujeR1BaaCGYYPB4rA&usqp=CAU');
+  const texture3 = useTexture('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1mtrFjnGJ4c5LmbhmMlZi5frAHzbT0kj_HQ&s');
+  const { actions } = useAnimations(abstractionGLTF.animations, abstractionRef);
   
-  // Загружаем текстуры для материала
+  // Загружаем текстуры для sphereGLTF
   const [diffuseMap, displacementMap, normalMap, roughnessMap] = useTexture([
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_Diffuse.jpg",
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_Displacement.jpg",
@@ -24,14 +21,15 @@ export const StepanAnimation = () => {
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_ReflRoughness.jpg",
   ]);
   
+  // Компонент Leva
   const { currentModel, rotation } = useControls({
     currentModel: { value: "A", options: { Sphere: "A", Abstraction: "B" } },
     rotation: true,
   });
 
-  // Abstraction settings
+  // Sphere settings
   const sphereOptions = useControls("Sphere Settings", {
-    texture: { value: diffuseMap, options: { first: diffuseMap, second: texture } },
+    texture: { value: diffuseMap, options: { first: diffuseMap, second: texture2, third: texture3 } },
   });
 
   // Abstraction settings
@@ -39,29 +37,7 @@ export const StepanAnimation = () => {
     roughness: { value: 0.3, min: 0, max: 1 },
   });
 
-  useEffect(() => {
-    if (!store) {
-      console.warn("Leva store is not available");
-      return;
-    }
-  
-    const abstractionFolder = store.get("Abstraction Settings");
-  
-    if (!abstractionFolder) {
-      console.warn("Abstraction Settings folder is not defined");
-      return;
-    }
-  
-    store.setVisible("Abstraction Settings", currentModel === "B");
-  }, [currentModel, store]);
-  
-  
-  
-  if (!diffuseMap || !displacementMap || !normalMap || !roughnessMap) {
-    console.warn("Textures not loaded yet");
-  }
-
-  // Настройка материала с текстурами
+  // Настройка материала с текстурами (для sphereGLTF)
   const material = new THREE.MeshStandardMaterial({
     map: sphereOptions.texture,
     displacementMap: displacementMap,
@@ -70,38 +46,37 @@ export const StepanAnimation = () => {
     displacementScale: 0.1,
   });
 
-  // Анимация вращения объекта для ballRef
+  // Анимация вращения объекта для sphereGLTF
   useFrame(() => {
-    if (ballRef.current && rotation) {
-      ballRef.current.rotation.x += 0.0015;
-      ballRef.current.rotation.y += 0.001;
+    if (sphereRef.current && rotation) {
+      sphereRef.current.rotation.x += 0.0015;
+      sphereRef.current.rotation.y += 0.001;
     }
-    if (animaRef.current && rotation) {
-      animaRef.current.rotation.y += 0.0015;
+    if (abstractionRef.current && rotation) {
+      abstractionRef.current.rotation.y += 0.0015;
     }
   });
 
-  // Запуск анимации для animaRef, только если выбрана модель "B"
+  // Запуск анимации для abstractionGLTF, только если выбрана модель "B"
   useEffect(() => {
-    const action = actions[Object.keys(actions)[0]]; // анимация для модели B
+    const action = actions[Object.keys(actions)[0]];
 
     if (currentModel === 'A') {
-      // Останавливаем анимацию для модели B
       if (action) action.stop();
     } else if (currentModel === 'B' && action) {
-      // Запуск анимации для модели B
       action.loop = THREE.LoopPingPong;
       action.repetitions = Infinity;
       action.play();
     }
   }, [actions, currentModel]); // Перезапуск анимации при изменении модели
 
+  // Текстуры и опции для abstractionGLTF
   useEffect(() => {
-    if (animaGLTF && animaGLTF.scene) {
-      animaGLTF.scene.traverse((obj) => {
+    if (abstractionGLTF && abstractionGLTF.scene) {
+      abstractionGLTF.scene.traverse((obj) => {
         if (obj.isMesh) {
           console.log(obj.material)
-          obj.material.map = texture
+          obj.material.map = texture2
           obj.material.normalMap = normalMap
           obj.material.roughnessMap = roughnessMap
           obj.material.displacementScale = 0.1
@@ -109,57 +84,32 @@ export const StepanAnimation = () => {
         }
       })
     }
-  }, [animaGLTF, diffuseMap, normalMap, roughnessMap, abstractionOptions.roughness, texture]);
+  }, [abstractionGLTF, diffuseMap, normalMap, roughnessMap, abstractionOptions.roughness, texture2]);
 
   return (
     <>
-      <OrbitControls
-        target={[0, 0.5, 0]}
-        maxPolarAngle={Math.PI / 2}
-        minPolarAngle={0}
-        enableDamping={true}
-        dampingFactor={0.1}
-      />
+      {/* Сфера с материалом */}
+      {currentModel === "A" && (
+        <mesh
+          ref={sphereRef}
+          position={[0, 0.6, 0]} // Поднимите объект чуть выше уровня пола
+          geometry={sphereGLTF.nodes.geo1.geometry}
+          material={material}
+          morphTargetDictionary={sphereGLTF.nodes.geo1.morphTargetDictionary}
+          morphTargetInfluences={sphereGLTF.nodes.geo1.morphTargetInfluences}
+          castShadow
+          receiveShadow
+        />
+      )}
 
-      <color attach="background" args={["#a3a3a3"]} />
-      <ambientLight intensity={0.1} />
-
-      {/* Группа для анимации и объектов */}
-      <group ref={group} dispose={null}>
-        {/* Меш для объекта с материалом */}
-        {currentModel === "A" && (
-          <mesh
-            ref={ballRef}
-            position={[0, 0.6, 0]} // Поднимите объект чуть выше уровня пола
-            geometry={sphereGLTF.nodes.geo1.geometry}
-            material={material}
-            morphTargetDictionary={sphereGLTF.nodes.geo1.morphTargetDictionary}
-            morphTargetInfluences={sphereGLTF.nodes.geo1.morphTargetInfluences}
-            castShadow
-            receiveShadow
-          />
-        )}
-
-        {/* Меш для анимации модели B */}
-        {currentModel === "B" && (
-          <primitive ref={animaRef} object={animaGLTF.scene} position={[0, 0.6, 0]} />
-        )}
-        
-        {/* Тени */}
-        <AccumulativeShadows temporal frames={200} color="lightgrey" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
-          <RandomizedLight
-            amount={8}
-            radius={10} // Увеличьте радиус, чтобы свет равномерно распределялся
-            ambient={1}
-            position={[5, 5, 5]} // Убедитесь, что свет падает сверху
-            bias={0.001}
-          />
-        </AccumulativeShadows>
-      </group>
+      {/* Анимированная абстракция */}
+      {currentModel === "B" && (
+        <primitive ref={abstractionRef} object={abstractionGLTF.scene} position={[0, 0.6, 0]} receiveShadow castShadow />
+      )}
 
       {/* Окружение */}
       <Environment preset="forest" />
-      <ContactShadows opacity={0.6} scale={10} blur={2} far={1} resolution={256} color="#000000" />
+      <ContactShadows opacity={0.6} scale={5} blur={5} far={1} resolution={256} color="#000000" />
     </>
   );
 };
