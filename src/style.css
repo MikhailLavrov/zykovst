@@ -4,3 +4,31 @@ html, body, #root, canvas {
   margin: 0;
   overflow: hidden;
 }
+
+select {
+  position: absolute;
+  top: 20px; /* Отступ сверху */
+  left: 20px; /* Отступ слева */
+  background-color: rgba(255, 255, 255, 0.7); /* Полупрозрачный фон */
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px); /* Немного размытие фона */
+  z-index: 10; /* Положение элемента поверх сцены */
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.select-container {
+  position: fixed; /* фиксируем в одном месте на экране */
+  top: 20px; /* Расположение сверху */
+  left: 20px; /* Расположение слева */
+  z-index: 100; /* Позиционирование поверх всех других элементов */
+  pointer-events: auto; /* Для возможности кликабельности */
+}

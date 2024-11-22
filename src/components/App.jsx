@@ -9,7 +9,7 @@ export const App = () => {
     <>
       <Canvas shadows camera={{ position: [3, 1, 3], fov: 40 }}>
         <Suspense fallback={null}>
-            <StepanAnimation />
+          <StepanAnimation />
         </Suspense>
       </Canvas>
       <Loader

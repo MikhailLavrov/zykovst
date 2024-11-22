@@ -2,19 +2,22 @@ import { useFrame } from "@react-three/fiber";
 import { AccumulativeShadows, ContactShadows, Environment, OrbitControls, RandomizedLight, useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-
-useGLTF.preload(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
+import { useControls } from "leva";
 
 export const StepanAnimation = () => {
   const group = useRef();
   const sphereGLTF = useGLTF(process.env.PUBLIC_URL + "/models/mat_001/mat_001.gltf");
-  const animGLTF = useGLTF(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
+  const animaGLTF = useGLTF(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
   const ballRef = useRef();
-  const animRef = useRef();
-
-  const { actions } = useAnimations(animGLTF.animations, group);
-
-  // Загружаем текстуры
+  const animaRef = useRef();
+  const { currentModel, rotation } = useControls({
+    currentModel: { value: "A", options: { Sphere: "A", Abstraction: "B" } },
+    rotation: true,
+  });
+  
+  const { actions } = useAnimations(animaGLTF.animations, group);
+  
+  // Загружаем текстуры для материала
   const [diffuseMap, displacementMap, normalMap, roughnessMap] = useTexture([
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_Diffuse.jpg",
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_Displacement.jpg",
@@ -22,7 +25,7 @@ export const StepanAnimation = () => {
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_ReflRoughness.jpg",
   ]);
 
-  // Настройка материала
+  // Настройка материала с текстурами
   const material = new THREE.MeshStandardMaterial({
     map: diffuseMap,
     displacementMap: displacementMap,
@@ -31,19 +34,31 @@ export const StepanAnimation = () => {
     displacementScale: 0.1,
   });
 
+  // Анимация вращения объекта для ballRef
   useFrame(() => {
-    if (ballRef.current) {
-      ballRef.current.rotation.x += 0.0015
-      ballRef.current.rotation.y += 0.001
+    if (ballRef.current && rotation) {
+      ballRef.current.rotation.x += 0.0015;
+      ballRef.current.rotation.y += 0.001;
     }
-  }, [])
+    if (animaRef.current && rotation) {
+      animaRef.current.rotation.y += 0.0015;
+    }
+  });
 
+  // Запуск анимации для animaRef, только если выбрана модель "B"
   useEffect(() => {
-    if (actions) {
-      actions[Object.keys(actions)[0]]?.play();
+    const action = actions[Object.keys(actions)[0]]; // анимация для модели B
+
+    if (currentModel === 'A') {
+      // Останавливаем анимацию для модели B
+      if (action) action.stop();
+    } else if (currentModel === 'B' && action) {
+      // Запуск анимации для модели B
+      action.loop = THREE.LoopPingPong;
+      action.repetitions = Infinity;
+      action.play();
     }
-    console.log(sphereGLTF)
-  }, [actions]);
+  }, [actions, currentModel]); // Перезапуск анимации при изменении модели
 
   return (
     <>
@@ -53,22 +68,33 @@ export const StepanAnimation = () => {
         minPolarAngle={0}
         enableDamping={true}
         dampingFactor={0.1}
-        />
+      />
 
       <color attach="background" args={["#a3a3a3"]} />
       <ambientLight intensity={0.1} />
 
+      {/* Группа для анимации и объектов */}
       <group ref={group} dispose={null}>
-        <mesh
-          ref={ballRef}
-          position={[0, 0.6, 0]} // Поднимите объект чуть выше уровня пола
-          geometry={sphereGLTF.nodes.geo1.geometry}
-          material={material}
-          morphTargetDictionary={sphereGLTF.nodes.geo1.morphTargetDictionary}
-          morphTargetInfluences={sphereGLTF.nodes.geo1.morphTargetInfluences}
-          castShadow
-          receiveShadow
+        {/* Меш для объекта с материалом */}
+        {currentModel === "A" && (
+          <mesh
+            ref={ballRef}
+            position={[0, 0.6, 0]} // Поднимите объект чуть выше уровня пола
+            geometry={sphereGLTF.nodes.geo1.geometry}
+            material={material}
+            morphTargetDictionary={sphereGLTF.nodes.geo1.morphTargetDictionary}
+            morphTargetInfluences={sphereGLTF.nodes.geo1.morphTargetInfluences}
+            castShadow
+            receiveShadow
           />
+        )}
+
+        {/* Меш для анимации модели B */}
+        {currentModel === "B" && (
+          <primitive ref={animaRef} object={animaGLTF.scene} position={[0, 0.6, 0]} />
+        )}
+        
+        {/* Тени */}
         <AccumulativeShadows temporal frames={200} color="lightgrey" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight
             amount={8}
@@ -78,11 +104,13 @@ export const StepanAnimation = () => {
             bias={0.001}
           />
         </AccumulativeShadows>
-
       </group>
 
+      {/* Окружение */}
       <Environment preset="forest" />
       <ContactShadows opacity={0.6} scale={10} blur={2} far={1} resolution={256} color="#000000" />
     </>
   );
-}
+};
+
+useGLTF.preload(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
