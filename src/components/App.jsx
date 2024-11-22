@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import '../style.css';
 import { StepanAnimation } from './StepanAnimation';
 import { Loader } from '@react-three/drei';
+import { Leva } from 'leva'
 
 export const App = () => {
   return (
@@ -12,6 +13,7 @@ export const App = () => {
           <StepanAnimation />
         </Suspense>
       </Canvas>
+      <Leva />
       <Loader
         containerStyles={{ background: "rgba(0,0,0,0.7)" }}
         barStyles={{ background: "red" }}

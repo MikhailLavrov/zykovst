@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { AccumulativeShadows, ContactShadows, Environment, OrbitControls, RandomizedLight, useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { useControls } from "leva";
+import { useControls, useStoreContext } from "leva";
 
 export const StepanAnimation = () => {
   const group = useRef();
@@ -10,11 +10,10 @@ export const StepanAnimation = () => {
   const animaGLTF = useGLTF(process.env.PUBLIC_URL + "/models/anim_001/anim_001.gltf");
   const ballRef = useRef();
   const animaRef = useRef();
-  const { currentModel, rotation } = useControls({
-    currentModel: { value: "A", options: { Sphere: "A", Abstraction: "B" } },
-    rotation: true,
-  });
-  
+  const texture = useTexture('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1mtrFjnGJ4c5LmbhmMlZi5frAHzbT0kj_HQ&s');
+
+  const store = useStoreContext();
+
   const { actions } = useAnimations(animaGLTF.animations, group);
   
   // Загружаем текстуры для материала
@@ -24,10 +23,47 @@ export const StepanAnimation = () => {
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_Normal.jpg",
     process.env.PUBLIC_URL + "/models/mat_001/Abstract_Chiped_Wood_ReflRoughness.jpg",
   ]);
+  
+  const { currentModel, rotation } = useControls({
+    currentModel: { value: "A", options: { Sphere: "A", Abstraction: "B" } },
+    rotation: true,
+  });
+
+  // Abstraction settings
+  const sphereOptions = useControls("Sphere Settings", {
+    texture: { value: diffuseMap, options: { first: diffuseMap, second: texture } },
+  });
+
+  // Abstraction settings
+  const abstractionOptions = useControls("Abstraction Settings", {
+    roughness: { value: 0.5, min: 0, max: 1 },
+  });
+
+  useEffect(() => {
+    if (!store) {
+      console.warn("Leva store is not available");
+      return;
+    }
+  
+    const abstractionFolder = store.get("Abstraction Settings");
+  
+    if (!abstractionFolder) {
+      console.warn("Abstraction Settings folder is not defined");
+      return;
+    }
+  
+    store.setVisible("Abstraction Settings", currentModel === "B");
+  }, [currentModel, store]);
+  
+  
+  
+  if (!diffuseMap || !displacementMap || !normalMap || !roughnessMap) {
+    console.warn("Textures not loaded yet");
+  }
 
   // Настройка материала с текстурами
   const material = new THREE.MeshStandardMaterial({
-    map: diffuseMap,
+    map: sphereOptions.texture,
     displacementMap: displacementMap,
     normalMap: normalMap,
     roughnessMap: roughnessMap,
@@ -59,6 +95,21 @@ export const StepanAnimation = () => {
       action.play();
     }
   }, [actions, currentModel]); // Перезапуск анимации при изменении модели
+
+  useEffect(() => {
+    if (animaGLTF && animaGLTF.scene) {
+      animaGLTF.scene.traverse((obj) => {
+        if (obj.isMesh) {
+          console.log(obj.material)
+          obj.material.map = texture
+          obj.material.normalMap = normalMap
+          obj.material.roughnessMap = roughnessMap
+          obj.material.displacementScale = 0.1
+          obj.material.roughness = abstractionOptions.roughness
+        }
+      })
+    }
+  }, [animaGLTF, diffuseMap, normalMap, roughnessMap, abstractionOptions.roughness, texture]);
 
   return (
     <>
