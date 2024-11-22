@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/zykovst/static/css/main.b3e38aec.css",
-    "main.js": "/zykovst/static/js/main.0abfa78a.js",
+    "main.js": "/zykovst/static/js/main.c66fd487.js",
     "index.html": "/zykovst/index.html",
     "main.b3e38aec.css.map": "/zykovst/static/css/main.b3e38aec.css.map",
-    "main.0abfa78a.js.map": "/zykovst/static/js/main.0abfa78a.js.map"
+    "main.c66fd487.js.map": "/zykovst/static/js/main.c66fd487.js.map"
   },
   "entrypoints": [
     "static/css/main.b3e38aec.css",
-    "static/js/main.0abfa78a.js"
+    "static/js/main.c66fd487.js"
   ]
 }
